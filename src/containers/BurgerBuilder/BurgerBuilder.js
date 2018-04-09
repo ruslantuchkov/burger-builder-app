@@ -17,17 +17,20 @@ const INGREDIENT_PRICES = {
 
 class BurgerBuilder extends Component {
   state = {
-    ingredients: {
-      salad: 0,
-      bacon: 0,
-      cheese: 0,
-      meat: 0
-    },
+    ingredients: null,
     totalPrice: 4,
     purchasable: false,
     purchasing: false,
-    loading: false
+    loading: false,
+    error: false
   };
+
+  componentDidMount() {
+    axios
+      .get('https://burger-builder-580a8.firebaseio.com/ingredients.json')
+      .then(response => this.setState({ ingredients: response.data }))
+      .catch(error => this.setState({ error }));
+  }
 
   purchaseHandler = () => {
     this.setState({ purchasing: true });
@@ -111,14 +114,38 @@ class BurgerBuilder extends Component {
       disabledControlTypes[type] = disabledControlTypes[type] <= 0;
     }
 
-    let orderSummary = (
-      <OrderSummary
-        ingredients={this.state.ingredients}
-        cancelPurchase={this.purchaseCancelHandler}
-        continuePurchase={this.purchaseContinueHandler}
-        price={this.state.totalPrice}
-      />
+    let orderSummary = null;
+    let burger = this.state.error ? (
+      <p>Ingredients can't be loaded.</p>
+    ) : (
+      <Spinner />
     );
+
+    if (this.state.ingredients) {
+      orderSummary = (
+        <OrderSummary
+          ingredients={this.state.ingredients}
+          cancelPurchase={this.purchaseCancelHandler}
+          continuePurchase={this.purchaseContinueHandler}
+          price={this.state.totalPrice}
+        />
+      );
+
+      burger = (
+        <Aux>
+          <Burger ingredients={this.state.ingredients} />
+          <BuildControls
+            addIngredient={this.addIngredientHandler}
+            removeIngredient={this.removeIngredientHandler}
+            disabled={disabledControlTypes}
+            price={this.state.totalPrice}
+            makeOrder={this.purchaseHandler}
+            purchasable={this.state.purchasable}
+          />
+        </Aux>
+      );
+    }
+
     if (this.state.loading) orderSummary = <Spinner />;
 
     return (
@@ -129,15 +156,7 @@ class BurgerBuilder extends Component {
         >
           {orderSummary}
         </Modal>
-        <Burger ingredients={this.state.ingredients} />
-        <BuildControls
-          addIngredient={this.addIngredientHandler}
-          removeIngredient={this.removeIngredientHandler}
-          disabled={disabledControlTypes}
-          price={this.state.totalPrice}
-          makeOrder={this.purchaseHandler}
-          purchasable={this.state.purchasable}
-        />
+        {burger}
       </Aux>
     );
   }
