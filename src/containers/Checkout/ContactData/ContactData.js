@@ -1,9 +1,15 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import axios from '../../../axios-orders';
 import Button from '../../../components/UI/Button/Button';
 import Spinner from '../../../components/UI/Spinner/Spinner';
 import Input from '../../../components/UI/Input/Input';
 import classes from './ContactData.css';
+
+const mapStateToProps = state => ({
+  ings: state.ingredients,
+  price: state.totalPrice
+});
 
 class ContactData extends Component {
   state = {
@@ -29,7 +35,8 @@ class ContactData extends Component {
         },
         value: '',
         validation: {
-          required: true
+          required: true,
+          isEmail: true
         },
         valid: false,
         touched: false
@@ -56,6 +63,7 @@ class ContactData extends Component {
         value: '',
         validation: {
           required: true,
+          isNumeric: true,
           minLength: 5,
           maxLength: 6
         },
@@ -101,7 +109,7 @@ class ContactData extends Component {
       ].value;
     }
     const order = {
-      ingredients: this.props.ingredients,
+      ingredients: this.props.ings,
       price: this.props.price, //необходима проверка на бекенде в продакшене
       orderData: formData
     };
@@ -150,6 +158,16 @@ class ContactData extends Component {
       isValid = value.length <= rules.maxLength;
     }
 
+    if (rules.isEmail && isValid) {
+      const pattern = /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
+      isValid = pattern.test(value);
+    }
+
+    if (rules.isNumeric && isValid) {
+      const pattern = /^\d+$/;
+      isValid = pattern.test(value);
+    }
+
     return isValid;
   };
 
@@ -194,4 +212,4 @@ class ContactData extends Component {
   }
 }
 
-export default ContactData;
+export default connect(mapStateToProps)(ContactData);
