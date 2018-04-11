@@ -3,10 +3,14 @@ import { connect } from 'react-redux';
 import * as actions from '../../store/actions/index';
 import Input from '../../components/UI/Input/Input';
 import Button from '../../components/UI/Button/Button';
+import Spinner from '../../components/UI/Spinner/Spinner';
 import classes from './Auth.css';
 
 function mapStateToProps(state) {
-  return {};
+  return {
+    error: state.auth.error,
+    loading: state.auth.loading
+  };
 }
 
 function mapDispatchToProps(dispatch) {
@@ -120,7 +124,7 @@ class Auth extends Component {
       });
     }
 
-    const form = formElementsArr.map(formElem => (
+    let form = formElementsArr.map(formElem => (
       <Input
         key={formElem.id}
         elementType={formElem.config.elementType}
@@ -132,10 +136,15 @@ class Auth extends Component {
         onChange={event => this.inputChangeHandler(event, formElem.id)}
       />
     ));
+    if (this.props.loading) form = <Spinner />;
+
+    let errorMessage = null;
+    if (this.props.error) errorMessage = <p>{this.props.error.message}</p>;
 
     return (
       <div className={classes.Auth}>
         <form onSubmit={this.submitHandler}>
+          {errorMessage}
           {form}
           <Button btnType="Success" disabled={!this.state.formIsValid}>
             SUBMIT
