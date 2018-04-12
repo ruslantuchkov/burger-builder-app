@@ -3,11 +3,16 @@ import { Route, Switch, withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import * as actions from './store/actions/index';
 import Layout from './hoc/Layout/Layout';
+import PrivateRoute from './hoc/PrivateRoute';
+import asyncComponent from './hoc/asyncComponent';
 import BurgerBuilder from './containers/BurgerBuilder/BurgerBuilder';
-import Checkout from './containers/Checkout/Checkout';
-import Orders from './containers/Orders/Orders';
-import Auth from './containers/Auth/Auth';
 import Logout from './containers/Auth/Logout/Logout';
+
+const asyncCheckout = asyncComponent(() =>
+  import('./containers/Checkout/Checkout')
+);
+const asyncOrders = asyncComponent(() => import('./containers/Orders/Orders'));
+const asyncAuth = asyncComponent(() => import('./containers/Auth/Auth'));
 
 const mapDispatchToProps = dispatch => ({
   onTryAutoSignup: () => dispatch(actions.authCheckState())
@@ -23,10 +28,10 @@ class App extends Component {
       <div>
         <Layout>
           <Switch>
-            <Route path="/checkout" component={Checkout} />
-            <Route path="/orders" component={Orders} />
-            <Route path="/auth" component={Auth} />
-            <Route path="/logout" component={Logout} />
+            <PrivateRoute path="/checkout" component={asyncCheckout} />
+            <PrivateRoute path="/orders" component={asyncOrders} />
+            <PrivateRoute path="/logout" component={Logout} />
+            <Route path="/auth" component={asyncAuth} />
             <Route path="/" component={BurgerBuilder} />
           </Switch>
         </Layout>

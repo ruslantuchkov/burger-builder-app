@@ -5,6 +5,7 @@ import * as actions from '../../store/actions/index';
 import Input from '../../components/UI/Input/Input';
 import Button from '../../components/UI/Button/Button';
 import Spinner from '../../components/UI/Spinner/Spinner';
+import { checkValidity } from '../../shared/utility';
 import classes from './Auth.css';
 
 function mapStateToProps(state) {
@@ -67,39 +68,13 @@ class Auth extends Component {
     }
   }
 
-  checkValidity = (value, rules = {}) => {
-    let isValid = true;
-
-    if (rules.required && isValid) {
-      isValid = value.trim() !== '';
-    }
-    if (rules.minLength && isValid) {
-      isValid = value.length >= rules.minLength;
-    }
-    if (rules.maxLength && isValid) {
-      isValid = value.length <= rules.maxLength;
-    }
-
-    if (rules.isEmail && isValid) {
-      const pattern = /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
-      isValid = pattern.test(value);
-    }
-
-    if (rules.isNumeric && isValid) {
-      const pattern = /^\d+$/;
-      isValid = pattern.test(value);
-    }
-
-    return isValid;
-  };
-
   inputChangeHandler = (event, controlName) => {
     const updatedControls = {
       ...this.state.controls,
       [controlName]: {
         ...this.state.controls[controlName],
         value: event.target.value,
-        valid: this.checkValidity(
+        valid: checkValidity(
           event.target.value,
           this.state.controls[controlName].validation
         ),

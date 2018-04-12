@@ -2,17 +2,19 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import axios from '../../../axios-orders';
 import * as actions from '../../../store/actions/index';
-import withErrorHandler from '../../../hoc/withErrorHandler/withErrorHandler';
+import withErrorHandler from '../../../hoc/withErrorHandler';
 import Button from '../../../components/UI/Button/Button';
 import Spinner from '../../../components/UI/Spinner/Spinner';
 import Input from '../../../components/UI/Input/Input';
+import { checkValidity } from '../../../shared/utility';
 import classes from './ContactData.css';
 
 const mapStateToProps = state => ({
   ings: state.burgerBuilder.ingredients,
   price: state.burgerBuilder.totalPrice,
   loading: state.order.loading,
-  token: state.auth.token
+  token: state.auth.token,
+  userId: state.auth.userId
 });
 
 const mapDispatchToProps = dispatch => ({
@@ -121,7 +123,8 @@ class ContactData extends Component {
     const order = {
       ingredients: this.props.ings,
       price: this.props.price, //необходима проверка на бекенде в продакшене
-      orderData: formData
+      orderData: formData,
+      userId: this.props.userId
     };
 
     this.props.onOrderBurger(order, this.props.token);
@@ -133,7 +136,7 @@ class ContactData extends Component {
       [inputIdentifier]: {
         ...this.state.orderForm[inputIdentifier],
         value: event.target.value,
-        valid: this.checkValidity(
+        valid: checkValidity(
           event.target.value,
           this.state.orderForm[inputIdentifier].validation
         ),
@@ -145,32 +148,6 @@ class ContactData extends Component {
     );
 
     this.setState({ orderForm: updatedOrderForm, formIsValid });
-  };
-
-  checkValidity = (value, rules = {}) => {
-    let isValid = true;
-
-    if (rules.required && isValid) {
-      isValid = value.trim() !== '';
-    }
-    if (rules.minLength && isValid) {
-      isValid = value.length >= rules.minLength;
-    }
-    if (rules.maxLength && isValid) {
-      isValid = value.length <= rules.maxLength;
-    }
-
-    if (rules.isEmail && isValid) {
-      const pattern = /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
-      isValid = pattern.test(value);
-    }
-
-    if (rules.isNumeric && isValid) {
-      const pattern = /^\d+$/;
-      isValid = pattern.test(value);
-    }
-
-    return isValid;
   };
 
   render() {

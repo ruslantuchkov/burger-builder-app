@@ -10,7 +10,10 @@ import { Provider } from 'react-redux';
 import './index.css';
 import App from './App';
 
-const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
+const composeEnhancers =
+  process.env.NODE_ENV === 'development'
+    ? window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__
+    : null || compose;
 const reducer = combineReducers({ burgerBuilder, order, auth });
 const store = createStore(reducer, composeEnhancers(applyMiddleware(thunk)));
 
