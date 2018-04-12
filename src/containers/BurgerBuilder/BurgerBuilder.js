@@ -13,14 +13,16 @@ import withErrorHandler from '../../hoc/withErrorHandler/withErrorHandler';
 const mapStateToProps = state => ({
   ings: state.burgerBuilder.ingredients,
   totalPrice: state.burgerBuilder.totalPrice,
-  error: state.burgerBuilder.error
+  error: state.burgerBuilder.error,
+  isAuth: state.auth.token !== null
 });
 
 const mapDispatchToProps = dispatch => ({
   onInitIngredients: () => dispatch(actions.initIngredients()),
   onAddIngredient: ingName => dispatch(actions.addIngredient(ingName)),
   onRemoveIngredient: ingName => dispatch(actions.removeIngredient(ingName)),
-  onInitPurchase: () => dispatch(actions.purchaseInit())
+  onInitPurchase: () => dispatch(actions.purchaseInit()),
+  onSetAuthRedirectPath: path => dispatch(actions.setAuthRedirectPath(path))
 });
 
 class BurgerBuilder extends Component {
@@ -33,7 +35,12 @@ class BurgerBuilder extends Component {
   }
 
   purchaseHandler = () => {
-    this.setState({ purchasing: true });
+    if (this.props.isAuth) {
+      this.setState({ purchasing: true });
+    } else {
+      this.props.onSetAuthRedirectPath('/checkout');
+      this.props.history.push('/auth');
+    }
   };
 
   purchaseCancelHandler = () => {
@@ -82,6 +89,7 @@ class BurgerBuilder extends Component {
         <Aux>
           <Burger ingredients={this.props.ings} />
           <BuildControls
+            isAuth={this.props.isAuth}
             addIngredient={this.props.onAddIngredient}
             removeIngredient={this.props.onRemoveIngredient}
             disabled={disabledControlTypes}

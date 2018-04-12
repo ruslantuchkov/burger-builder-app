@@ -10,6 +10,7 @@ const controls = [
 ];
 
 const BuildControls = ({
+  isAuth,
   addIngredient,
   removeIngredient,
   disabled,
@@ -36,7 +37,7 @@ const BuildControls = ({
         disabled={!purchasable}
         onClick={makeOrder}
       >
-        ORDER NOW
+        {isAuth ? 'ORDER NOW' : 'SIGN UP TO ORDER'}
       </button>
     </div>
   );
