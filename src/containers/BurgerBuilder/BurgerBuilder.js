@@ -25,7 +25,7 @@ const mapDispatchToProps = dispatch => ({
   onSetAuthRedirectPath: path => dispatch(actions.setAuthRedirectPath(path))
 });
 
-class BurgerBuilder extends Component {
+export class BurgerBuilder extends Component {
   state = {
     purchasing: false
   };
